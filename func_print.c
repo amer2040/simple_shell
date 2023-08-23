@@ -16,8 +16,6 @@ int _putchar(char c)
  * print - prints a strings
  *
  * @str: pointer to string
- *
- * Return: characters count number.
  */
 void print(char *str)
 {
@@ -28,6 +26,4 @@ void print(char *str)
 		_putchar(str[i]);
 		i++;
 	}
-
-	return (i);
 }

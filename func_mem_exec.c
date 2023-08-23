@@ -5,8 +5,8 @@
   */
 void interactive(void)
 {
-	if ((isatty(STDIN_FILENO) == 1) && (isatty(STDOUT_FILENO) == 1))
-		write(STDERR_FILENO, "sh$ ", 4);
+	if (isatty(STDIN_FILENO))
+		print("sh$ ");
 }
 
 /**
@@ -16,9 +16,10 @@ void interactive(void)
  */
 void sig_hd(int sig_num)
 {
-	(void) sig_num;
-	write(STDERR_FILENO, "\n", 1);
-	write(STDERR_FILENO, "sh$ ", 4);
+	if (sig_num == SIGINT)
+	{
+		print("\nsh$ ");
+	}
 }
 
 /**

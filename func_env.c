@@ -8,13 +8,12 @@
 void env(char **av __attribute__ ((unused)))
 {
 
-	int x = 0;
+	int x ;
 
-	while (environ[x])
+	for (x = 0; environ[x]; x++)
 	{
-		write(STDOUT_FILENO, (const void *)environ[x], _strlen(environ[x]));
-		write(STDOUT_FILENO, "\n", 1);
-		x++;
+		print(environ[x]);
+		print("\n");
 	}
 
 }
