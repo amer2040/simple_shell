@@ -14,65 +14,32 @@
 
 extern char **environ;
 
-/**
- * struct lpath - linked list continning $PATH directories
- * @dir: directory in path
- * @np: pointer to next node
- */
-typedef struct lpath
-{
-	char *dir;
-	struct lpath *np;
-} lpath;
-
-/**
- * struct shbuildin - pointer to function with buildin shell command
- * @ncmd: buildin command
- * @func: function execute the buildin shell command
- */
-typedef struct shbuildin
-{
-	char *ncmd;
-	void (*func)(char **);
-} shbuildin;
-
-/*handles the end of file*/
-void _EOF(char *buf);
-
-/*linked list manipulate*/
-lpath *add_node_end(lpath **head, char *str);
-lpath *lk_path(char *path);
-void free_list(lpath *head);
-
-/*func to print strings*/
-int _putchar(char c);
-void print(char *str);
+/*func builtin*/
+int _cd(const char *path);
 
 /*func to control strings*/
 unsigned int _strlen(char *s);
-char *_strdup(char *str);
-char *_strcat(char *name, char *sep, char *value);
+char *_strcpy(char *dest, char *src);
+char *_strcat(char *dest, char *src);
 char **split_string(char *str, const char *delim);
+int _strcmp(char *s1, char *s2);
 int _atoi(char *s);
 
 /*memory management*/
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+void freeav(char **av);
+void exitfree(char **av);
 
-/*environment functions*/
-void env(char **av);
-char *_getenv(const char *name);
-void _setenv(char **av);
-void _unsetenv(char **av);
+/*init*/
+void interactive(void);
+void _EOF(char *buf);
+void sig_hd(int sig_n);
 void sh_exit(char **av);
-char *_which(char *filename, lpath *head);
 
 /*execution control*/
-void execute(char **av);
-void(*cmd_check(char **av))(char **av);
-void freeav(char **av);
-void interactive(void);
-
-/*signal handler*/
-void sig_hd(int sig_n);
+void print_env(char **environ);
+char **_getPATH(char **environ);
+void execute(char **av, char *name, char **environ, int cy);
+void sup_process(char **av, char *name, char **environ, int cy);
+void msg_errors(char *name, int cy, char **av);
 
 #endif

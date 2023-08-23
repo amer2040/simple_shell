@@ -1,119 +1,121 @@
 #include "shell.h"
 
 /**
-  * interactive - verify if in interactive mode or not.
-  */
-void interactive(void)
-{
-	if (isatty(STDIN_FILENO))
-		print("sh$ ");
-}
-
-/**
- * sig_hd - to checks if Ctrl C is pressed.
- *
- * @sig_num: int of signal number.
- */
-void sig_hd(int sig_num)
-{
-	if (sig_num == SIGINT)
-	{
-		print("\nsh$ ");
-	}
-}
-
-/**
  * execute - the execute a commands.
  *
- * @av: the array of arguments(commands arguments).
+ * @av: pointer to tokenized command.
+ * @name: The pointer to the name of shell.
+ * @environ: The pointer to the enviromental variables.
+ * @cy: The number of executed cycles.
  */
-void execute(char **av)
+void execute(char **av, char *name, char **environ, int cy)
 {
+	char **pathname = NULL, *full_path = NULL;
+	struct stat st;
+	unsigned int x = 0;
 
-	pid_t pid;
-	int st;
-
-	if (!av || !av[0])
-		return;
-	pid = fork();
-	if (pid == -1)
+	if (_strcmp(av[0], "env") != 0)
+		print_env(environ);
+	if (stat(av[0], &st) == 0)
 	{
-		perror("Error");
-	}
-	if (pid == 0)
-	{
-		execve(av[0], av, environ);
-		perror(av[0]);
-		exit(EXIT_FAILURE);
-	}
-	wait(&st);
-}
-
-/**
- * _realloc - the reallocates memory for previous pointer.
- *
- * @ptr: the previous pointer to reallocate.
- * @old_size: the old size of previous pointer.
- * @new_size: the new size for our pointer.
- *
- * Return: the new resized pointer.
- */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
-{
-	char *new;
-	char *old;
-	unsigned int x;
-
-	if (ptr == NULL)
-		return (malloc(new_size));
-
-	if (new_size == old_size)
-		return (ptr);
-
-	if (new_size == 0 && ptr != NULL)
-	{
-		free(ptr);
-		return (NULL);
-	}
-
-	new = malloc(new_size);
-	old = ptr;
-	if (new == NULL)
-		return (NULL);
-
-	if (new_size > old_size)
-	{
-		for (x = 0; x < old_size; x++)
-			new[x] = old[x];
-		free(ptr);
-		for (x = old_size; x < new_size; x++)
-			new[x] = '\0';
-	}
-	if (new_size < old_size)
-	{
-		for (x = 0; x < new_size; x++)
-			new[x] = old[x];
-		free(ptr);
-	}
-	return (new);
-}
-
-/**
-* _EOF - to handles the End of File.
-*
-* @len: length og line.
-* @buf: buffer.
- */
-void _EOF(int len, char *buf)
-{
-	(void)buf;
-	if (len == -1)
-	{
-		if (isatty(STDIN_FILENO))
+		if (execve(av[0], av, environ) < 0)
 		{
-			print("\n");
-			free(buf);
+			perror(name);
+			exitfree(av);
 		}
-		exit(0);
 	}
+	else
+	{
+		pathname = _getPATH(environ);
+		while (pathname[x])
+		{
+			full_path = _strcat(pathname[x], av[0]);
+			x++;
+			if (stat(full_path, &st) == 0)
+			{
+				if (execve(full_path, av, environ) < 0)
+				{
+					perror(name);
+					freeav(pathname);
+					exitfree(av);
+				}
+				return;
+			}
+		}
+		msg_errors(name, cy, av);
+		freeav(pathname);
+	}
+}
+
+/**
+ * freeav - frees the array of pointers av
+ *
+ *@av: array of pointers.
+ */
+
+void freeav(char **av)
+{
+	size_t x;
+
+	if (av == NULL)
+	{
+		return;
+	}
+
+	for (x = 0; av[x]; x++)
+		free(av[x]);
+
+	if (av[x] == NULL)
+	{
+		free(av[x]);
+	}
+
+	free(av);
+}
+
+/**
+ * exitfree - function that frees all the memory allocated and exit.
+ *
+ * @av: pointer to allocated command memory to free.
+ */
+void exitfree(char **av)
+{
+	size_t x = 0;
+
+	if (av == NULL)
+		return;
+
+	while (av[x])
+	{
+		free(av[x]);
+		x++;
+	}
+
+	if (av[x] == NULL)
+		free(av[x]);
+	free(av);
+	exit(EXIT_FAILURE);
+}
+
+/**
+ * sh_exit - exit from shell.
+ *
+ * @av: the array of words (commands arguments).
+*/
+void sh_exit(char **av)
+{
+	int x, n;
+
+	if (av[1])
+	{
+		n = _atoi(av[1]);
+		if (n <= -1)
+			n = 2;
+		freeav(av);
+		exit(n);
+	}
+	for (x = 0; av[x]; x++)
+		free(av[x]);
+	free(av);
+	exit(EXIT_SUCCESS);
 }

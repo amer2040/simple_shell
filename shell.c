@@ -1,51 +1,49 @@
 #include "shell.h"
 
 /**
- * main - Entry point.
+ * main - entry point.
  *
- * Return: 0 Always on success.
+ * @ac: arguments count.
+ * @av: arguments vector.
+ * @environ: pointer to array of enviromental variables.
+ *
+ * Return: Always 0.
  */
-
-int main(void)
+int main(int ac, char **av, char **environ)
 {
-	char *buf = NULL, *value, *path, **av;
-	size_t size = 0;
-	ssize_t len = 0;
-	lpath *head = NULL;
-	void (*func)(char **);
-
-	signal(SIGINT, sig_hd);
-	while (len != EOF)
+	char *buf = NULL;
+	char **command = NULL;
+	size_t buf_size = 0;
+	ssize_t ch_readed = 0;
+	int cy = 0;
+	(void)ac;
+	
+	while (1)
 	{
+		cy++;
 		interactive();
-		len = getline(&buf, &size, stdin);
-		_EOF(len, buf);
-		av = split_string(buf, " \n");
-		if (!av || !av[0])
-			execute(av);
+		signal(SIGINT, sig_hd);
+		ch_readed = getline(&buf, &buf_size, stdin);
+		if (ch_readed == EOF)
+			_EOF(buf);
+		else if (*buf == '\n')
+			free(buf);
 		else
 		{
-			value = _getenv("PATH");
-			head = lk_path(value);
-			path = _which(av[0], head);
-			func = cmd_check(av);
-			if (func)
-			{
-				free(buf);
-				func(av);
-			}
-			else if (!path)
-				execute(av);
-			else if (path)
-			{
-				free(av[0]);
-				av[0] = path;
-				execute(av);
-			}
+			buf[_strlen(buf) - 1] = '\0';
+			command = split_string(buf, " \0");
+			free(buf);
+			if (_strcmp(command[0], "exit") != 0)
+				sh_exit(command);
+			else if (_strcmp(command[0], "cd") != 0)
+				_cd(command[1]);
+			else
+				sup_process(command, av[0], environ, cy);
 		}
+		fflush(stdin);
+		buf = NULL, buf_size = 0;
 	}
-	free_list(head);
-	freeav(av);
-	free(buf);
-	return (0);
+	if (ch_readed == -1)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
 }
