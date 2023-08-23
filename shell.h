@@ -10,39 +10,15 @@
 #include <string.h>
 #include <stddef.h>
 #include <signal.h>
+#include <limits.h>
 #include <errno.h>
 
 extern char **environ;
+char *chk_equal(char *str);
+int comp(char *varname, char *dirname);
 
-/**
- * struct lpath - linked list continning $PATH directories
- * @dir: directory in path
- * @np: pointer to next node
- */
-typedef struct lpath
-{
-	char *dir;
-	struct lpath *np;
-} lpath;
-
-/**
- * struct shbuildin - pointer to function with buildin shell command
- * @ncmd: buildin command
- * @func: function execute the buildin shell command
- */
-typedef struct shbuildin
-{
-	char *ncmd;
-	void (*func)(char **);
-} shbuildin;
-
-/*handles the end of file*/
-void _EOF(int len, char *buf);
-
-/*linked list manipulate*/
-lpath *add_node_end(lpath **head, char *str);
-lpath *lk_path(char *path);
-void free_list(lpath *head);
+/*start prompt*/
+char *_getline(void);
 
 /*func to print strings*/
 int _putchar(char c);
@@ -51,26 +27,22 @@ void print(char *str);
 /*func to control strings*/
 int _strlen(char *s);
 char *_strdup(char *str);
-char *_strcat(char *name, char *sep, char *value);
-char **split_string(char *str, const char *delim);
-int _atoi(char *s);
+char *_strcat(char *dest, char *src);
+char **tokinizer(char *str, const char *delim);
 
-/*memory management*/
+/*control PATH*/
+char **_findpath(char **environ);
+char *path_args(char **parse, char **tokens);
+
+/*Func Memory*/
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 
 /*environment functions*/
-void env(char **av);
-char *_getenv(const char *name);
-void _setenv(char **av);
-void _unsetenv(char **av);
-void sh_exit(char **av);
-char *_which(char *filename, lpath *head);
+char *_getenv(char **environ, char *dirname);
 
 /*execution control*/
-void execute(char **av);
+int execute(char **av);
 void(*cmd_check(char **av))(char **av);
-void freeav(char **av);
-void interactive(void);
 
 /*signal handler*/
 void sig_hd(int sig_n);

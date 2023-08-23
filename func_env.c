@@ -1,163 +1,72 @@
 #include "shell.h"
 
 /**
- * env - prints the current environment
+ * chk_equal - function that checks the ()=) character
  *
- * @av: array of arguments
+ * @str: is a string
+ *
+ * Return: str
  */
-void env(char **av __attribute__ ((unused)))
+
+char *chk_equal(char *str)
 {
+	int x;
 
-	int x ;
-
-	for (x = 0; environ[x]; x++)
-	{
-		print(environ[x]);
-		print("\n");
-	}
-
+	for (x = 0; str[x] != '='; x++)
+		;
+	return (str + x + 1);
 }
 
 /**
- * _getenv - gets the value of the global variable in environment
+ * comp - function that compares two strings
  *
- * @name: the name of the global variable
+ * @varname: is a char
+ * @dirname: is a char
  *
- * Return: string of value
+ * Return: 1
  */
-char *_getenv(const char *name)
+
+int comp(char *varname, char *dirname)
 {
-	char *value;
-	int x, y;
+	int x;
 
-	if (!name)
-		return (NULL);
-	for (x = 0; environ[x]; x++)
+	for (x = 0; dirname[x] != '\0'; x++)
 	{
-		y = 0;
-		if (name[y] == environ[x][y])
-		{
-			while (name[y])
-			{
-				if (name[y] != environ[x][y])
-					break;
-
-				y++;
-			}
-			if (name[y] == '\0')
-			{
-				value = (environ[x] + y + 1);
-				return (value);
-			}
-		}
+		if (dirname[x] != varname[x])
+			return (0);
 	}
-	return (0);
+	return (1);
 }
 
 /**
- * _setenv - create or modify environment variable
+ * _getenv - function gets the path in the environ
  *
- * @av: array of words.
- */
-void _setenv(char **av)
-{
-	int x, y, z;
-
-	if (!av[1] || !av[2])
-	{
-		perror(_getenv("_"));
-		return;
-	}
-
-	for (x = 0; environ[x]; x++)
-	{
-		y = 0;
-		if (av[1][y] == environ[x][y])
-		{
-			while (av[1][y])
-			{
-				if (av[1][y] != environ[x][y])
-					break;
-
-				y++;
-			}
-			if (av[1][y] == '\0')
-			{
-				z = 0;
-				while (av[2][z])
-				{
-					environ[x][y + 1 + z] = av[2][z];
-					z++;
-				}
-				environ[x][y + 1 + z] = '\0';
-				return;
-			}
-		}
-	}
-	if (!environ[x])
-	{
-
-		environ[x] = _strcat(av[1], "=", av[2]);
-		environ[x + 1] = '\0';
-
-	}
-}
-
-/**
- * _unsetenv - Delete an environment variable
+ * @environ: global variable
+ * @dirname: is a char
  *
- * @av: array of  words.
+ * Return: final or null
  */
-void _unsetenv(char **av)
+
+char *_getenv(char **environ, char *dirname)
 {
 	int x, y;
+	char *varname, *final;
 
-	if (!av[1])
+	for (y = 0; environ[y]; y++)
 	{
-		perror(_getenv("_"));
-		return;
-	}
-	for (x = 0; environ[x]; x++)
-	{
-		y = 0;
-		if (av[1][y] == environ[x][y])
+		varname = malloc(512);
+
+		for (x = 0; environ[y][x] != '='; x++)
+			varname[x] = environ[y][x];
+
+		if (comp(varname, dirname))
 		{
-			while (av[1][y])
-			{
-				if (av[1][y] != environ[x][y])
-					break;
+			final = chk_equal(environ[y]);
+			free(varname);
+			return (final);
 
-				y++;
-			}
-			if (av[1][y] == '\0')
-			{
-				free(environ[x]);
-				environ[x] = environ[x + 1];
-				while (environ[x])
-				{
-					environ[x] = environ[x + 1];
-					x++;
-				}
-				return;
-			}
 		}
+		free(varname);
 	}
-}
-
-/**
- * freeav - frees the array of pointers av
- *
- *@av: array of pointers.
- */
-
-void freeav(char **av)
-{
-	int x = 0;
-
-	while (av[x])
-	{
-		free(av[x]);
-		x++;
-	}
-	free(av);
+	return (NULL);
 }

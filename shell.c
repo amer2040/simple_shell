@@ -3,49 +3,34 @@
 /**
  * main - Entry point.
  *
+ * @ac: arguments count
+ * @av: arguments vector
+ * @environ: global variable env
+ *
  * Return: 0 Always on success.
  */
 
-int main(void)
+int main(int ac, char **av, char **environ)
 {
-	char *buf = NULL, *value, *path, **av;
-	size_t bufsize = 0;
-	ssize_t linesize = 0;
-	lpath *head = '\0';
-	void (*func)(char **);
+	char *line = NULL;
+	char *delim = "\t \a\n";
+	char *command;
+	char **tokens;
+	(void)ac;
 
-	signal(SIGINT, sig_hd);
-	while (linesize != EOF)
+	tokens = _findpath(environ);
+
+	signal(SIGINT, SIG_IGN);
+	while (1)
 	{
-		interactive();
-		linesize = getline(&buf, &bufsize, stdin);
-		_EOF(linesize, buf);
-		av = split_string(buf, " \n");
-		if (!av || !av[0])
+		line = _getline();
+		av = tokinizer(line, delim);
+		command = path_args(av, tokens);
+		if (command == NULL)
 			execute(av);
-		else
-		{
-			value = _getenv("PATH");
-			head = lk_path(value);
-			path = _which(av[0], head);
-			func = cmd_check(av);
-			if (func)
-			{
-				free(buf);
-				func(av);
-			}
-			else if (!path)
-				execute(av);
-			else if (path)
-			{
-				free(av[0]);
-				av[0] = path;
-				execute(av);
-			}
-		}
+		free(line);
+		free(av);
+		free(command);
 	}
-	free_list(head);
-	freeav(av);
-	free(buf);
 	return (0);
 }

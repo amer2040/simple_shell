@@ -13,7 +13,7 @@ int _putchar(char c)
 }
 
 /**
- * print - prints a strings
+ * _print - prints a strings
  *
  * @str: pointer to string
  */

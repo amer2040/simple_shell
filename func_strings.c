@@ -11,10 +11,9 @@ int _strlen(char *s)
 {
 	int x = 0;
 
-	while (*s)
+	while (*(s + x) != '\0')
 	{
 		x++;
-		s++;
 	}
 	return (x);
 }
@@ -24,100 +23,58 @@ int _strlen(char *s)
  *
  * @str: pointer to a string
  *
- * Return: pointer to a string
+ * Return: pointer to a array
  */
 char *_strdup(char *str)
 {
-	int x, len;
 	char *new;
+	int x;
 
-	if (!str)
-	{
+	if (str == NULL)
 		return (NULL);
-	}
-	len = _strlen(str);
 
-	new = malloc(sizeof(char) * (len + 1));
-	if (!new)
-	{
+	new = malloc(_strlen(str) + 1);
+
+	if (new == NULL)
 		return (NULL);
-	}
-	for (x = 0; *str != '\0'; str++, x++)
+
+	x = 0;
+
+	while (str[x] != '\0')
 	{
-		new[x] = str[0];
+		new[x] = str[x];
+		x++;
 	}
-	new[x++] = '\0';
+
+	new[x] = '\0';
+
 	return (new);
 }
 
 /**
- * _strcat - concnats 3 strings in a newly allocated memory
- * @name: first string
- * @sep: second string
- * @value: Third string
+ * _strcat - concntenates 2 strings in a newly allocated memory
+ *
+ * @dest: destination string
+ * @src: source string
+ *
  * Return: pointer to the new string
  */
-char *_strcat(char *name, char *sep, char *value)
+char *_strcat(char *dest, char *src)
 {
-	char *result;
-	int s1, s2, s3, x, y;
+	int x, y;
 
-	s1 = _strlen(name);
-	s2 = _strlen(sep);
-	s3 = _strlen(value);
+	for (x = 0; dest[x] != '\0'; x++)
+	{ }
 
-	result = malloc(s1 + s2 + s3 + 1);
-	if (!result)
-		return (NULL);
+	for (y = 0; src[y] != '\0'; y++, y++)
+		dest[x] = src[y];
 
-	for (x = 0; name[x]; x++)
-		result[x] = name[x];
-	y = x;
-
-	for (x = 0; sep[x]; x++)
-		result[y + x] = sep[x];
-	y = y + x;
-
-	for (x = 0; value[x]; x++)
-		result[y + x] = value[x];
-	y = y + x;
-
-	result[y] = '\0';
-
-	return (result);
+	dest[x] = '\0';
+	return (dest);
 }
 
 /**
- * _atoi - converts a ASCII into an integer
- *
- *@s: pointer to a string
- *
- *Return: the integer
- */
-int _atoi(char *s)
-{
-	int i = 0;
-	int num = 0;
-	int sign = 1;
-
-	while (!((s[i] >= '0') && (s[i] <= '9')) && (s[i] != '\0'))
-	{
-		if (s[i] == '-')
-		{
-			sign = sign * (-1);
-		}
-		i++;
-	}
-	while ((s[i] >= '0') && (s[i] <= '9'))
-	{
-		num = (num * 10) + (sign * (s[i] - '0'));
-		i++;
-	}
-	return (num);
-}
-
-/**
- * split_string - splits a string and makes it an array of words
+ * tokinizer - splits a string and makes it an array of words
  *
  * @str: the string to be split
  * @delim: the delimiter
@@ -125,42 +82,31 @@ int _atoi(char *s)
  * Return: array of pointers > words
  */
 
-char **split_string(char *str, const char *delim)
+char **tokinizer(char *str, const char *delim)
 {
-	int x;
-	int cw;
-	char **array;
-	char *token;
-	char *cpy;
+	char **token;
+	int buf = 512;
+	int x = 0;
 
-	cpy = malloc(_strlen(str) + 1);
-	if (cpy == NULL)
+	token = malloc(sizeof(char *) * buf);
+	if (!token)
+		exit(99);
+
+	token[x] = strtok(str, delim);
+	x++;
+	while (1)
 	{
-		perror(_getenv("_"));
-		return (NULL);
-	}
-	x = 0;
-	while (str[x])
-	{
-		cpy[x] = str[x];
+		token[x] = strtok(NULL, delim);
+		if (x >= buf)
+		{
+			buf += buf;
+			token = _realloc(token, buf, buf * (sizeof(char *)));
+			if (!token)
+				exit(98);
+		}
+		if (token[x] == NULL)
+			break;
 		x++;
 	}
-	cpy[x] = '\0';
-
-	token = strtok(cpy, delim);
-	array = malloc((sizeof(char *) * 2));
-	array[0] = _strdup(token);
-
-	x = 1;
-	cw = 3;
-	while (token)
-	{
-		token = strtok(NULL, delim);
-		array = _realloc(array, (sizeof(char *) * (cw - 1)), (sizeof(char *) * cw));
-		array[x] = _strdup(token);
-		x++;
-		cw++;
-	}
-	free(cpy);
-	return (array);
+	return (token);
 }

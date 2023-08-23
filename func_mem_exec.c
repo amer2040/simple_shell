@@ -1,12 +1,25 @@
 #include "shell.h"
 
 /**
-  * interactive - verify if in interactive mode or not.
-  */
-void interactive(void)
+ * _getline - reads the commandline
+ *
+ * Return: line
+ */
+char *_getline(void)
 {
-	if (isatty(STDIN_FILENO))
-		print("sh$ ");
+	char *line = NULL;
+	size_t size = 0;
+	int r = 0;
+
+	if (getline(&line, &size, stdin) == -1)
+	{
+		free(line);
+		exit(-1);
+	}
+	r = _strlen(line);
+	line[r - 1] = '\0';
+
+	return (line);
 }
 
 /**
@@ -27,28 +40,28 @@ void sig_hd(int sig_num)
  *
  * @av: the array of arguments(commands arguments).
  */
-void execute(char **av)
+int execute(char **av)
 {
-
 	pid_t pid;
 	int st;
 
-	if (!av || !av[0])
-		return;
 	pid = fork();
-	if (pid == -1)
-	{
-		perror(av[0]);
-	}
 	if (pid == 0)
 	{
-		execve(av[0], av, environ);
-		perror(av[0]);
-		free(av[0]);
-		freeav(av);
-		exit(98);
+		if (execve(av[0], av, NULL) == -1)
+		{
+			perror(av[0]);
+			exit(1);
+		}
 	}
-	wait(&st);
+	else if (pid > 0)
+	{
+		wait(&st);
+	}
+	else
+		perror("Error:");
+
+	return (0);
 }
 
 /**
@@ -58,19 +71,19 @@ void execute(char **av)
  * @old_size: the old size of previous pointer.
  * @new_size: the new size for our pointer.
  *
- * Return: the new resized pointer.
+ * Return: NULL or the new resized pointer.
  */
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
+
 	char *new;
-	char *old;
 	unsigned int x;
 
 	if (ptr == NULL)
-		return (malloc(new_size));
-
-	if (new_size == old_size)
-		return (ptr);
+	{
+		new = malloc(new_size);
+		return (new);
+	}
 
 	if (new_size == 0 && ptr != NULL)
 	{
@@ -78,44 +91,20 @@ void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 		return (NULL);
 	}
 
+	if (new_size == old_size)
+		return (ptr);
+
 	new = malloc(new_size);
-	old = ptr;
+
 	if (new == NULL)
 		return (NULL);
 
-	if (new_size > old_size)
+	for (x = 0; x < old_size; x++)
 	{
-		for (x = 0; x < old_size; x++)
-			new[x] = old[x];
-		free(ptr);
-		for (x = old_size; x < new_size; x++)
-			new[x] = '\0';
+		new[x] = ((char *)ptr)[x];
 	}
-	if (new_size < old_size)
-	{
-		for (x = 0; x < new_size; x++)
-			new[x] = old[x];
-		free(ptr);
-	}
-	return (new);
-}
 
-/**
-* _EOF - to handles the End of File.
-*
-* @len: length og line.
-* @buf: buffer.
- */
-void _EOF(int len, char *buf)
-{
-	(void)buf;
-	if (len == -1)
-	{
-		if (isatty(STDIN_FILENO))
-		{
-			print("\n");
-			free(buf);
-		}
-		exit(0);
-	}
+	free(ptr);
+
+	return (new);
 }
