@@ -1,50 +1,98 @@
-#ifndef SHELL_H_
-#define SHELL_H_
+#ifndef SHELL_H
+#define SHELL_H
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
+#include <stdio.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+/* delete when functions are built */
 #include <string.h>
-#include <stddef.h>
-#include <signal.h>
-#include <limits.h>
-#include <errno.h>
+/* end delete when functions are built */
 
+#define BUFSIZE 1024
 extern char **environ;
-char *chk_equal(char *str);
-int comp(char *varname, char *dirname);
+/**
+  * struct environ_type - linked list from PATH
+  * @str: path in the format /usr/bin
+  * @len: length of the string
+  * @next: points to the next node
+  */
+typedef struct environ_type
+{
+	char *str;
+	unsigned int len;
+	struct environ_type *next;
+} env_t;
 
-/*start prompt*/
-char *_getline(void);
+/**
+  * struct builtin_commands - stuct for function pointers to builtin commands
+  * @cmd_str: commands (env, cd, alias, history)
+  * @fun: function
+  */
+typedef struct builtin_commands
+{
+	char *cmd_str;
+	int (*fun)();
+} builtin_cmds_t;
 
-/*func to print strings*/
-int _putchar(char c);
-void print(char *str);
+/* In builtins.c */
+int (*is_builtin(char *cmd))();
+int _exit_with_grace(char **tokens, env_t *linkedlist_path, char *buffer);
+int _env(char **tokens, env_t *environment);
+int _cd(char **tokens);
 
-/*func to control strings*/
+/* In builtins_2.c */
+int _setenv_usr(char **tokens);
+int _alias(void);
+int _history(void);
+int bowie(void);
+
+/* in environment.c */
+env_t *list_from_path(void);
+env_t *environ_linked_list(void);
+char *search_os(char *cmd, env_t *linkedlist_path);
+
+/* in env_operations.c */
+char *_getenv(const char *name);
+int _setenv(const char *name, const char *value, int overwrite);
+
+/* in linked_list_operations.c */
+env_t *add_node(env_t **head, char *str, unsigned int len);
+void free_list(env_t *head);
+
+
+/* In executor.c */
+void executor(char *argv[], env_t *linkedlist_path);
+
+/* In memory_management.c */
+void *_realloc(char *ptr, unsigned int old_size, unsigned int new_size);
+void _memset(char *str, int fill, int n);
+void _memcpy(char *dest, char *src, unsigned int bytes);
+
+/* In parser.c */
+char *_getline(int file);
+char **parser(char *str, char *delim);
+void reader(void);
+
+/* In strtok.c */
+/* Other functions in this file do not need to be referenced elsewhere. */
+char *_strtok_r(char *str, char *delim, char **saveptr);
+
+/* In string_operations.c */
 int _strlen(char *s);
-char *_strdup(char *str);
-char *_strcat(char *dest, char *src);
-char **tokinizer(char *str, const char *delim);
+int _strncmp(char *s1, char *s2, size_t bytes);
+char *_strdup(char *src);
+char *_strcat_realloc(char *dest, char *src);
+int _atoi(char *s);
+int _isdigit(int c);
 
-/*control PATH*/
-char **_findpath(char **environ);
-char *path_args(char **parse, char **tokens);
-
-/*Func Memory*/
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-
-/*environment functions*/
-char *_getenv(char **environ, char *dirname);
-
-/*execution control*/
-int execute(char **av);
-void(*cmd_check(char **av))(char **av);
-
-/*signal handler*/
-void sig_hd(int sig_n);
+/* In string_operations_2.c */
+unsigned int word_count(char *str);
+void simple_print(const char *str);
+int _strlen_const(const char *s);
+size_t print_list(const env_t *h);
 
 #endif
