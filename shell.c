@@ -9,17 +9,17 @@
 int main(void)
 {
 	char *buf = NULL, *value, *path, **av;
-	size_t size = 0;
-	ssize_t len = 0;
+	size_t bufsize = 0;
+	ssize_t linesize = 0;
 	lpath *head = NULL;
 	void (*func)(char **);
 
 	signal(SIGINT, sig_hd);
-	while (len != EOF)
+	while (linesize != EOF)
 	{
 		interactive();
-		len = getline(&buf, &size, stdin);
-		_EOF(len, buf);
+		linesize = getline(&buf, &bufsize, stdin);
+		_EOF(linesize, buf);
 		av = split_string(buf, " \n");
 		if (!av || !av[0])
 			execute(av);

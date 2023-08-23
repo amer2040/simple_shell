@@ -8,12 +8,13 @@
 void env(char **av __attribute__ ((unused)))
 {
 
-	int x;
+	int x = 0;
 
-	for (x = 0; environ[x]; x++)
+	while (environ[x])
 	{
-		print(environ[x]);
-		print("\n");
+		write(STDOUT_FILENO, (const void *)environ[x], _strlen(environ[x]));
+		write(STDOUT_FILENO, "\n", 1);
+		x++;
 	}
 
 }
@@ -152,9 +153,14 @@ void _unsetenv(char **av)
 
 void freeav(char **av)
 {
-	int x;
+	int x = 0;
 
-	for (x = 0; av[x]; x++)
+	if (!av || av == NULL)
+		return;
+	while (av[x])
+	{
 		free(av[x]);
+		x++;
+	}
 	free(av);
 }

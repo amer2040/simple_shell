@@ -11,9 +11,10 @@ int _strlen(char *s)
 {
 	int x = 0;
 
-	while (*(s + x) != '\0')
+	while (*s)
 	{
 		x++;
+		s++;
 	}
 	return (x);
 }
@@ -27,27 +28,25 @@ int _strlen(char *s)
  */
 char *_strdup(char *str)
 {
-	int x, y;
+	int x, len;
 	char *new;
 
 	if (!str)
 	{
 		return (NULL);
 	}
-	for (y = 0; str[y] != '\0';)
-	{
-		y++;
-	}
-	new = malloc(sizeof(char) * y + 1);
+	len = _strlen(str);
+
+	new = malloc(sizeof(char) * (len + 1));
 	if (!new)
 	{
 		return (NULL);
 	}
-	for (x = 0; x < y; x++)
+	for (x = 0; *str != '\0'; str++; x++)
 	{
-		new[x] = str[x];
+		new[x] = str[0];
 	}
-	new[y] = str[y];
+	new[x++] = '\0';
 	return (new);
 }
 
