@@ -1,62 +1,78 @@
-#ifndef _SHELL_H_
-#define _SHELL_H_
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <stdlib.h>
+#ifndef SHELL_H_
+#define SHELL_H_
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
 #include <string.h>
+#include <stddef.h>
+#include <signal.h>
+#include <errno.h>
 
-/*==================================================*/
-/*============     Shell_Init       ==============*/
-/*==================================================*/
+extern char **environ;
 
-int main(int ac, char **av, char **env);
-void prompt(void);
-void handle(int signals);
-void _EOF(char *buffer);
-void shell_exit(char **command);
+/**
+ * struct lpath - linked list continning $PATH directories
+ * @dir: directory in path
+ * @np: pointer to next node
+ */
+typedef struct lpath
+{
+	char *dir;
+	struct lpath *np;
+} lpath;
 
-/*==================================================*/
-/*============     create_child       ==============*/
-/*==================================================*/
+/**
+ * struct shbuildin - pointer to function with buildin shell command
+ * @ncmd: buildin command
+ * @func: function execute the buildin shell command
+ */
+typedef struct shbuildin
+{
+	char *ncmd;
+	void (*func)(char **);
+} shbuildin;
 
-void create_child(char **command, char *name, char **env, int cicles);
-int change_dir(const char *path);
+/*handles the end of file*/
+void _EOF(char *buf);
 
-/*==================================================*/
-/*============        Execute       ==============*/
-/*==================================================*/
+/*linked list manipulate*/
+lpath *add_node_end(lpath **head, char *str);
+lpath *lk_path(char *path);
+void free_list(lpath *head);
 
-void execute(char **command, char *name, char **env, int cicles);
-void print_env(char **env);
-char **_getPATH(char **env);
-void msgerror(char *name, int cicles, char **command);
+/*func to print strings*/
+int _putchar(char c);
+void print(char *str);
 
-/*==================================================*/
-/*============          Tokening      ==============*/
-/*==================================================*/
-
-char **tokening(char *buffer, const char *s);
-
-/*==================================================*/
-/*============     Free Memory      ==============*/
-/*==================================================*/
-
-void free_dp(char **command);
-void free_exit(char **command);
-
-/*==================================================*/
-/*============  Auxiliar_Functions    ==============*/
-/*==================================================*/
-
-int _strcmp(char *s1, char *s2);
+/*func to control strings*/
 unsigned int _strlen(char *s);
-char *_strcpy(char *dest, char *src);
+char *_strdup(char *str);
+char *_strcat(char *name, char *sep, char *value);
+char **split_string(char *str, const char *delim);
 int _atoi(char *s);
-char *_strcat(char *dest, char *src);
 
-/*============ END      ==============*/
+/*memory management*/
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 
-#endif /* _SHELL_H_ */
+/*environment functions*/
+void env(char **av);
+char *_getenv(const char *name);
+void _setenv(char **av);
+void _unsetenv(char **av);
+void sh_exit(char **av);
+char *_which(char *filename, lpath *head);
+
+/*execution control*/
+void execute(char **av);
+void(*cmd_check(char **av))(char **av);
+void freeav(char **av);
+void interactive(void);
+
+/*signal handler*/
+void sig_hd(int sig_n);
+
+#endif
