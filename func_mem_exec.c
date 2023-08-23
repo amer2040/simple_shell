@@ -33,18 +33,18 @@ void execute(char **av)
 	pid_t pid;
 	int st;
 
-	if (!av || !av[0])
-		return;
 	pid = fork();
 	if (pid == -1)
 	{
-		perror("Error");
+		perror(av[0]);
 	}
 	if (pid == 0)
 	{
 		execve(av[0], av, environ);
 		perror(av[0]);
-		exit(EXIT_FAILURE);
+		free(av[0]);
+		freeav(av);
+		exit(98);
 	}
 	wait(&st);
 }
