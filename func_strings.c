@@ -97,7 +97,7 @@ char *_strcat(char *name, char *sep, char *value)
 int _atoi(char *s)
 {
 	int i = 0;
-	int n = 0;
+	int num = 0;
 	int sign = 1;
 
 	while (!((s[i] >= '0') && (s[i] <= '9')) && (s[i] != '\0'))
@@ -110,10 +110,10 @@ int _atoi(char *s)
 	}
 	while ((s[i] >= '0') && (s[i] <= '9'))
 	{
-		n = (n * 10) + (sign * (s[i] - '0'));
+		num = (num * 10) + (sign * (s[i] - '0'));
 		i++;
 	}
-	return (n);
+	return (num);
 }
 
 /**
@@ -127,8 +127,8 @@ int _atoi(char *s)
 
 char **split_string(char *str, const char *delim)
 {
-	int x = 0;
-	int cw = 3;
+	int x;
+	int cw;
 	char **array;
 	char *token;
 	char *cpy;
@@ -136,9 +136,10 @@ char **split_string(char *str, const char *delim)
 	cpy = malloc(_strlen(str) + 1);
 	if (cpy == NULL)
 	{
-		perror("Error");
+		perror(_getenv("_"));
 		return (NULL);
 	}
+	x = 0;
 	while (str[x])
 	{
 		cpy[x] = str[x];
@@ -151,6 +152,7 @@ char **split_string(char *str, const char *delim)
 	array[0] = _strdup(token);
 
 	x = 1;
+	cw = 3;
 	while (token)
 	{
 		token = strtok(NULL, delim);

@@ -11,7 +11,7 @@ int main(void)
 	char *buf = NULL, *value, *path, **av;
 	size_t bufsize = 0;
 	ssize_t linesize = 0;
-	lpath *head = NULL;
+	lpath *head = '\0';
 	void (*func)(char **);
 
 	signal(SIGINT, sig_hd);

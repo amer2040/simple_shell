@@ -33,6 +33,8 @@ void execute(char **av)
 	pid_t pid;
 	int st;
 
+	if (!av || !av[0])
+		return;
 	pid = fork();
 	if (pid == -1)
 	{

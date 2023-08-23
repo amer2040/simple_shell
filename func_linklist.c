@@ -45,7 +45,7 @@ lpath *add_node_end(lpath **head, char *str)
 	}
 
 	new->dir = str;
-	new->np = NULL;
+	new->np = '\0';
 
 	if (!*head)
 	{

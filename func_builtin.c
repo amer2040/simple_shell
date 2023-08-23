@@ -12,17 +12,17 @@ char *_which(char *filename, lpath *head)
 {
 	lpath *tmp = head;
 	struct stat st;
-	char *string;
+	char *str;
 
 	while (tmp)
 	{
 
-		string = _strcat(tmp->dir, "/", filename);
-		if (stat(string, &st) == 0)
+		str = _strcat(tmp->dir, "/", filename);
+		if (stat(str, &st) == 0)
 		{
-			return (string);
+			return (str);
 		}
-		free(string);
+		free(str);
 		tmp = tmp->np;
 	}
 
@@ -36,15 +36,17 @@ char *_which(char *filename, lpath *head)
 */
 void sh_exit(char **av)
 {
-	int x, n;
+	int x, y;
 
 	if (av[1])
 	{
-		n = _atoi(av[1]);
-		if (n <= -1)
-			n = 2;
+		y = _atoi(av[1]);
+		if (y <= -1)
+		{
+			y = 2;
+		}
 		freeav(av);
-		exit(n);
+		exit(y);
 	}
 	for (x = 0; av[x]; x++)
 		free(av[x]);

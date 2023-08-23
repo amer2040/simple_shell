@@ -65,7 +65,7 @@ void _setenv(char **av)
 
 	if (!av[1] || !av[2])
 	{
-		perror("Error");
+		perror(_getenv("_"));
 		return;
 	}
 
@@ -114,7 +114,7 @@ void _unsetenv(char **av)
 
 	if (!av[1])
 	{
-		perror("Error");
+		perror(_getenv("_"));
 		return;
 	}
 	for (x = 0; environ[x]; x++)
@@ -154,8 +154,6 @@ void freeav(char **av)
 {
 	int x = 0;
 
-	if (!av || av == NULL)
-		return;
 	while (av[x])
 	{
 		free(av[x]);
