@@ -48,7 +48,7 @@ void sup_process(char **av, char *name, char **environ, int cy)
   */
 int _cd(const char *path)
 {
-    size_t size = 1024;
+	size_t size = 1024;
 	char *buf = NULL;
 
 	if (path == NULL)

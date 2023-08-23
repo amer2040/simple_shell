@@ -17,7 +17,7 @@ int main(int ac, char **av, char **environ)
 	ssize_t ch_readed = 0;
 	int cy = 0;
 	(void)ac;
-	
+
 	while (1)
 	{
 		cy++;
